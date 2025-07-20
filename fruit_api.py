@@ -20,18 +20,6 @@ def simulate_fruit_generation(fruit_id: str):
     time.sleep(3)  # Simulate Meshy.ai latency
     fruit_db[fruit_id]["mesh_file"] = f"{fruit_id}.obj"
 
-@app.post("/assignMesh")
-async def assign_mesh(assignment: MeshAssignment):
-    fruit = fruit_db.get(assignment.fruitId)
-    if not fruit:
-        raise HTTPException(status_code=404, detail="Fruit not found")
-
-    fruit["meshId"] = assignment.meshId
-    fruit["status"] = "ready"  # ✅ Mark ready only when meshId is set
-
-    return {"message": "Mesh ID assigned", "fruitId": assignment.fruitId}
-
-
 @app.post("/submitFruit")
 async def submit_fruit(prompt: FruitPrompt, background_tasks: BackgroundTasks):
     fruit_id = f"fruit_{uuid.uuid4().hex[:8]}"
@@ -69,10 +57,11 @@ async def assign_mesh_id(fruit_id: str, assignment: MeshAssignment):
     if not fruit:
         return {"error": "Fruit not found"}
 
-    if fruit["status"] != "ready":
+    if fruit["status"] != "growing":
         return {"error": "Fruit not ready yet"}
 
     fruit["meshId"] = assignment.meshId
+    fruit["status"] = "ready"
     return {
         "message": "Mesh ID assigned",
         "fruitId": fruit_id,

@@ -21,7 +21,6 @@ def simulate_fruit_generation(fruit_id: str):
     # When done, pretend we got a mesh and it was uploaded manually
     fruit_db[fruit_id]["status"] = "ready"
     fruit_db[fruit_id]["mesh_file"] = f"{fruit_id}.obj"
-    fruit_db[fruit_id]["meshId"] = "rbxassetid://123456789012"  # Replace with real MeshId
 
 
 @app.post("/submitFruit")

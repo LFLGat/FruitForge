@@ -14,9 +14,12 @@ class FruitPrompt(BaseModel):
     prompt: str
 
 def simulate_fruit_generation(fruit_id: str):
-    time.sleep(3)  # Simulate time delay (e.g., generating mesh)
+    time.sleep(3)  # Simulate AI delay
+    # When done, pretend we got a mesh and it was uploaded manually
     fruit_db[fruit_id]["status"] = "ready"
-    fruit_db[fruit_id]["mesh_file"] = f"{fruit_id}.glb"
+    fruit_db[fruit_id]["mesh_file"] = f"{fruit_id}.obj"
+    fruit_db[fruit_id]["meshId"] = "rbxassetid://123456789012"  # Replace with real MeshId
+
 
 @app.post("/submitFruit")
 async def submit_fruit(prompt: FruitPrompt, background_tasks: BackgroundTasks):
@@ -36,8 +39,16 @@ async def get_fruit_status(fruit_id: str):
     fruit = fruit_db.get(fruit_id)
     if not fruit:
         return {"error": "Fruit not found"}
-    return {
+
+    response = {
         "fruitId": fruit_id,
         "status": fruit["status"],
-        "mesh_file": fruit["mesh_file"]
+        "prompt": fruit["prompt"],
+        "mesh_file": fruit["mesh_file"],
     }
+
+    if fruit["status"] == "ready" and fruit.get("meshId"):
+        response["meshId"] = fruit["meshId"]
+
+    return response
+

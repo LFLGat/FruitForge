@@ -13,6 +13,9 @@ class FruitPrompt(BaseModel):
     userId: int
     prompt: str
 
+class MeshAssignment(BaseModel):
+    meshId: str
+
 def simulate_fruit_generation(fruit_id: str):
     time.sleep(3)  # Simulate AI delay
     # When done, pretend we got a mesh and it was uploaded manually
@@ -51,4 +54,21 @@ async def get_fruit_status(fruit_id: str):
         response["meshId"] = fruit["meshId"]
 
     return response
+
+@app.post("/assignMesh/{fruit_id}")
+async def assign_mesh_id(fruit_id: str, assignment: MeshAssignment):
+    fruit = fruit_db.get(fruit_id)
+    if not fruit:
+        return {"error": "Fruit not found"}
+
+    if fruit["status"] != "ready":
+        return {"error": "Fruit not ready yet"}
+
+    fruit["meshId"] = assignment.meshId
+    return {
+        "message": "Mesh ID assigned",
+        "fruitId": fruit_id,
+        "meshId": assignment.meshId
+    }
+
 
